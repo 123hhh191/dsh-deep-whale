@@ -433,6 +433,85 @@ window.__ModuleLoader__.load({
 			}
 			return parts.join("\n\n");
 		}
+		/** Cache of decoded image sizes (data URLs decode once). */
+		const imageSizeCache = /* @__PURE__ */ new Map();
+		function loadImageSize(src) {
+			const cached = imageSizeCache.get(src);
+			if (cached !== void 0) return Promise.resolve(cached);
+			return new Promise((resolve) => {
+				const probe = new Image();
+				probe.onload = () => {
+					const size = {
+						w: probe.naturalWidth,
+						h: probe.naturalHeight
+					};
+					imageSizeCache.set(src, size);
+					resolve(size);
+				};
+				probe.onerror = () => resolve(null);
+				probe.src = src;
+			});
+		}
+		/**
+		* Render a contain/custom layer as a real <img> element. Two problems with
+		* the background-image approach:
+		* 1. contain pins one axis to the viewport, so that axis has ZERO movement
+		*    room (`top = posY% * (vh - imgH)` = 0 when imgH == vh) — users could
+		*    never move the image up/down.
+		* 2. the feather mask applied to the full-viewport div feathers the
+		*    VIEWPORT edges; a contained image does not reach the viewport's left
+		*    and right edges, so its left/right edges were never feathered.
+		* An <img> is positioned by its CENTER (center-anchored: left = posX% * vw
+		* - w/2), which always has movement range, and the mask/blur/opacity apply
+		* to the image box itself, so feathering follows the IMAGE edges.
+		*/
+		async function renderImageLayer(layer, entry) {
+			const size = await loadImageSize(entry.image);
+			if (size === null) return;
+			const vw = window.innerWidth;
+			const vh = window.innerHeight;
+			let w;
+			let h;
+			if (entry.size === "contain") {
+				const scale = Math.min(vw / size.w, vh / size.h);
+				w = size.w * scale;
+				h = size.h * scale;
+			} else {
+				w = vw * (Math.max(1, Math.min(300, entry.scale)) / 100);
+				h = w * size.h / size.w;
+			}
+			const left = (entry.posX ?? 50) / 100 * vw - w / 2;
+			const top = (entry.posY ?? 50) / 100 * vh - h / 2;
+			let img = layer.querySelector("img");
+			if (img === null) {
+				img = document.createElement("img");
+				img.alt = "";
+				img.style.position = "absolute";
+				layer.append(img);
+			}
+			img.src = entry.image;
+			img.style.left = `${left}px`;
+			img.style.top = `${top}px`;
+			img.style.width = `${w}px`;
+			img.style.height = `${h}px`;
+			const blur = Math.max(0, Math.min(60, entry.blur));
+			const opacity = Math.max(0, Math.min(100, entry.opacity)) / 100;
+			img.style.filter = blur > 0 ? `blur(${blur}px)` : "none";
+			img.style.opacity = String(opacity);
+			const feather = Math.max(0, Math.min(200, entry.feather));
+			if (feather > 0) {
+				const mask = [`linear-gradient(to right, transparent 0, black ${feather}px, black calc(100% - ${feather}px), transparent 100%)`, `linear-gradient(to bottom, transparent 0, black ${feather}px, black calc(100% - ${feather}px), transparent 100%)`].join(", ");
+				img.style.maskImage = mask;
+				img.style.webkitMaskImage = mask;
+				img.style.maskComposite = "intersect";
+				img.style.webkitMaskComposite = "source-in";
+			} else {
+				img.style.maskImage = "none";
+				img.style.webkitMaskImage = "none";
+				img.style.maskComposite = "";
+				img.style.webkitMaskComposite = "";
+			}
+		}
 		/**
 		* The background is a layer stack of fixed, pointer-transparent divs.
 		* body/html background declarations do not reliably paint under the shell
@@ -447,7 +526,21 @@ window.__ModuleLoader__.load({
 			const visible = config.enabled && entry.visible;
 			layer.style.display = visible ? "block" : "none";
 			layer.style.zIndex = String(-1 - index);
+			layer.style.overflow = "hidden";
 			if (!visible) return;
+			if (entry.kind === "image" && entry.image !== "" && (entry.size === "contain" || entry.size === "custom")) {
+				layer.style.backgroundImage = "none";
+				layer.style.backgroundColor = "transparent";
+				layer.style.filter = "none";
+				layer.style.opacity = "";
+				layer.style.maskImage = "none";
+				layer.style.webkitMaskImage = "none";
+				layer.style.maskComposite = "";
+				layer.style.webkitMaskComposite = "";
+				renderImageLayer(layer, entry);
+				return;
+			}
+			layer.querySelector("img")?.remove();
 			if (entry.kind === "color") {
 				layer.style.backgroundImage = "none";
 				layer.style.backgroundColor = entry.color;
@@ -458,14 +551,10 @@ window.__ModuleLoader__.load({
 				layer.style.backgroundImage = "none";
 				layer.style.backgroundColor = "transparent";
 			}
-			const scale = Math.max(1, Math.min(300, entry.scale)) / 100;
+			Math.max(1, Math.min(300, entry.scale)) / 100;
 			switch (entry.size) {
 				case "cover":
 					layer.style.backgroundSize = "cover";
-					layer.style.backgroundRepeat = "no-repeat";
-					break;
-				case "contain":
-					layer.style.backgroundSize = "contain";
 					layer.style.backgroundRepeat = "no-repeat";
 					break;
 				case "stretch":
@@ -476,8 +565,8 @@ window.__ModuleLoader__.load({
 					layer.style.backgroundSize = "auto";
 					layer.style.backgroundRepeat = "repeat";
 					break;
-				case "custom":
-					layer.style.backgroundSize = `${scale * 100}%`;
+				default:
+					layer.style.backgroundSize = "cover";
 					layer.style.backgroundRepeat = "no-repeat";
 			}
 			layer.style.backgroundPosition = `${entry.posX ?? 50}% ${entry.posY ?? 50}%`;
