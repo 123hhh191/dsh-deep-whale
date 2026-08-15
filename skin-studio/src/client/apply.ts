@@ -75,6 +75,22 @@ export function composeTokens(scheme: Scheme): Record<string, TokenPair> {
 export function buildCss(scheme: Scheme): string {
   const parts: string[] = []
 
+  // When a background image is enabled, make the conversation area fully
+  // transparent so the full-viewport background layers (with ALL their
+  // adjustments: scale/position/blur/opacity/feather) show through without
+  // being diluted by the app's stacked translucent surfaces (body + frame +
+  // conversation root each read bg-base, and multiplied alphas hid the
+  // image). Content floats on the image; the "global darkening" slider keeps
+  // it readable.
+  if (scheme.background.enabled
+    && scheme.background.layers.some((layer) => layer.visible && layer.kind === 'image' && layer.image !== '')) {
+    parts.push(`/* ==== skin-studio: transparent conversation surface ==== */
+[class*='centerCol'] [class*='root'] { background: transparent !important; }
+[data-conversation-scroll] { background: transparent !important; }
+[data-composer-card] { background: transparent !important; }
+[data-phase='hero'] [class*='card'] { background: transparent !important; }`)
+  }
+
   if (scheme.css.trim() !== '') {
     parts.push(`/* ==== user css ==== */\n${scheme.css}`)
   }

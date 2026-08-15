@@ -428,6 +428,11 @@ window.__ModuleLoader__.load({
 		/** Build the injected stylesheet text for the current scheme. */
 		function buildCss(scheme) {
 			const parts = [];
+			if (scheme.background.enabled && scheme.background.layers.some((layer) => layer.visible && layer.kind === "image" && layer.image !== "")) parts.push(`/* ==== skin-studio: transparent conversation surface ==== */
+[class*='centerCol'] [class*='root'] { background: transparent !important; }
+[data-conversation-scroll] { background: transparent !important; }
+[data-composer-card] { background: transparent !important; }
+[data-phase='hero'] [class*='card'] { background: transparent !important; }`);
 			if (scheme.css.trim() !== "") parts.push(`/* ==== user css ==== */\n${scheme.css}`);
 			if (scheme.rules.length > 0) {
 				parts.push(`/* ==== element picker rules ==== */`);
