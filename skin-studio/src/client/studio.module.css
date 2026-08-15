@@ -1,0 +1,240 @@
+/* Skin studio settings row. Rendered inside the General section item slot,
+   styled with theme tokens so it adapts to light/dark automatically. */
+
+.root {
+  border-bottom: 1px solid var(--dsw-alias-border-l2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 0;
+}
+
+.title {
+  color: var(--dsw-alias-label-primary);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0 0;
+}
+
+.blockTitle {
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.muted {
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.sliderRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.sliderRow input[type='range'] {
+  flex: 1;
+}
+
+.preview {
+  display: block;
+  width: 96px;
+  height: 54px;
+  object-fit: cover;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+}
+
+/* background layer manager */
+.layerCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: 10px;
+  background: var(--dsw-alias-bg-layer-1);
+}
+
+.layerHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.layerThumb {
+  flex: none;
+  width: 40px;
+  height: 24px;
+  object-fit: cover;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 5px;
+}
+
+.layerTitle {
+  flex: 1;
+  min-width: 0;
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px;
+  line-height: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.select {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 6px;
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: 6px;
+  background: var(--dsw-alias-bg-layer-2);
+  color: var(--dsw-alias-label-primary);
+  font: 400 12px/1.4 var(--dsw-font-family, system-ui, sans-serif);
+}
+
+.button {
+  padding: 5px 12px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-1);
+  color: var(--dsw-alias-label-primary);
+  font: 500 12px/1.4 var(--dsw-font-family, system-ui, sans-serif);
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.buttonPrimary {
+  composes: button;
+  border-color: transparent;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: #fff;
+}
+
+.buttonDanger {
+  composes: button;
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.buttonGhost {
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dsw-alias-label-tertiary);
+  font: 500 12px/1.4 var(--dsw-font-family, system-ui, sans-serif);
+  cursor: pointer;
+}
+
+.buttonGhost:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.group {
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.group summary {
+  cursor: pointer;
+  user-select: none;
+}
+
+.tokenRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 0;
+  border-top: 1px solid var(--dsw-alias-border-l1);
+}
+
+.tokenInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tokenLabel {
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.tokenVar {
+  color: var(--dsw-alias-label-tertiary);
+  font: 400 11px/1.5 var(--ds-font-family-code, monospace);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.colorCells {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+.colorCell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.colorCell input[type='color'] {
+  width: 26px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 5px;
+  background: transparent;
+}
+
+.colorCode {
+  color: var(--dsw-alias-label-tertiary);
+  font: 400 10px/1 var(--ds-font-family-code, monospace);
+  width: 44px;
+}
+
+.cssEditor {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 96px;
+  padding: 8px 10px;
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: 8px;
+  background: var(--dsw-alias-markdown-code-block, var(--dsw-alias-bg-layer-1));
+  color: var(--dsw-alias-label-primary);
+  font: 400 12px/1.6 var(--ds-font-family-code, monospace);
+  resize: vertical;
+}
