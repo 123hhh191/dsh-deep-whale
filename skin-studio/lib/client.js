@@ -390,13 +390,21 @@ window.__ModuleLoader__.load({
 				dark: "rgb(21, 21, 23)"
 			}
 		};
-		/** Surface translucency per token (higher = more opaque). */
+		/**
+		* Surface translucency per token (higher = more opaque).
+		* NOTE on stacking: the app paints several translucent layers over the
+		* backdrop (body + frame + conversation root all read bg-base), and alpha
+		* multiplies. Three 0.8 layers leave only ~4% of the image visible — that is
+		* why backgrounds looked "hidden under the chat". These values are tuned so
+		* the stacked conversation area shows the image clearly while single-layer
+		* surfaces (sidebar, cards, popovers) keep a glass feel.
+		*/
 		const SURFACE_ALPHA = {
-			"--dsw-alias-bg-base": .8,
-			"--dsw-alias-bg-layer-1": .86,
-			"--dsw-alias-bg-layer-2": .9,
-			"--dsw-alias-bg-overlay": .96,
-			"--dsw-specific-sidebar-fill": .84
+			"--dsw-alias-bg-base": .45,
+			"--dsw-alias-bg-layer-1": .7,
+			"--dsw-alias-bg-layer-2": .75,
+			"--dsw-alias-bg-overlay": .85,
+			"--dsw-specific-sidebar-fill": .72
 		};
 		/** Build the translucent-surface token pairs for the background layer. */
 		function translucentSurfaces() {
