@@ -376,7 +376,11 @@ export function bindApply(theme: ThemeService): ApplyHandle {
   backdrop.style.cssText = 'position:fixed;inset:0;z-index:-1;pointer-events:none;'
   const veil = document.createElement('div')
   veil.dataset.skinStudio = 'backdrop-veil'
-  veil.style.cssText = 'position:fixed;inset:0;z-index:-1000;pointer-events:none;display:none;'
+  // Same z-index as the layer container but appended AFTER it, so within the
+  // negative-z band the veil paints OVER the background images while the
+  // app surface (z-index auto) still sits above it. z-index:-1000 put it
+  // BELOW the images, which made the "global darkening" invisible.
+  veil.style.cssText = 'position:fixed;inset:0;z-index:-1;pointer-events:none;display:none;'
   // Append (not prepend): a leading fixed negative-z child does not paint
   // under the shell reliably; trailing placement does. The veil is a
   // sibling of the layer container, never a child (children are indexed).

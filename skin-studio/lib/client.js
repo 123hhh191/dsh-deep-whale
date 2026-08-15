@@ -655,7 +655,7 @@ body { background: transparent !important; }
 			backdrop.style.cssText = "position:fixed;inset:0;z-index:-1;pointer-events:none;";
 			const veil = document.createElement("div");
 			veil.dataset.skinStudio = "backdrop-veil";
-			veil.style.cssText = "position:fixed;inset:0;z-index:-1000;pointer-events:none;display:none;";
+			veil.style.cssText = "position:fixed;inset:0;z-index:-1;pointer-events:none;display:none;";
 			document.body.append(backdrop, veil);
 			let disposeOverrides = null;
 			const reapply = () => {
