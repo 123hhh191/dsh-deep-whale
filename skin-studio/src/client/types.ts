@@ -110,7 +110,7 @@ export const DEFAULT_SCHEME: Scheme = {
   version: 1,
   background: {
     enabled: false,
-    overlay: 0.35,
+    overlay: 0.2,
     layers: [],
   },
   tokens: {},

@@ -41,7 +41,7 @@ window.__ModuleLoader__.load({
 			version: 1,
 			background: {
 				enabled: false,
-				overlay: .35,
+				overlay: .2,
 				layers: []
 			},
 			tokens: {},
@@ -428,8 +428,11 @@ window.__ModuleLoader__.load({
 		/** Build the injected stylesheet text for the current scheme. */
 		function buildCss(scheme) {
 			const parts = [];
-			if (scheme.background.enabled && scheme.background.layers.some((layer) => layer.visible && layer.kind === "image" && layer.image !== "")) parts.push(`/* ==== skin-studio: transparent conversation surface ==== */
+			if (scheme.background.enabled && scheme.background.layers.some((layer) => layer.visible && layer.kind === "image" && layer.image !== "")) parts.push(`/* ==== skin-studio: transparent app surfaces ==== */
+body { background: transparent !important; }
+[class*='frame'] { background: transparent !important; }
 [class*='centerCol'] [class*='root'] { background: transparent !important; }
+[class*='detailsCol'] { background: transparent !important; }
 [data-conversation-scroll] { background: transparent !important; }
 [data-composer-card] { background: transparent !important; }
 [data-phase='hero'] [class*='card'] { background: transparent !important; }`);
@@ -662,10 +665,19 @@ window.__ModuleLoader__.load({
 				syncBackgroundLayers(backdrop, veil, scheme);
 				styleEl.textContent = buildCss(scheme);
 			};
-			const offStore = store.subscribe(reapply);
-			reapply();
+			let rafId = null;
+			const scheduleReapply = () => {
+				if (rafId !== null) return;
+				rafId = requestAnimationFrame(() => {
+					rafId = null;
+					reapply();
+				});
+			};
+			const offStore = store.subscribe(scheduleReapply);
+			scheduleReapply();
 			const dispose = () => {
 				offStore();
+				if (rafId !== null) cancelAnimationFrame(rafId);
 				disposeOverrides?.();
 				disposeOverrides = null;
 				styleEl.remove();

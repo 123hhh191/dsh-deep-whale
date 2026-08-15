@@ -75,17 +75,19 @@ export function composeTokens(scheme: Scheme): Record<string, TokenPair> {
 export function buildCss(scheme: Scheme): string {
   const parts: string[] = []
 
-  // When a background image is enabled, make the conversation area fully
-  // transparent so the full-viewport background layers (with ALL their
-  // adjustments: scale/position/blur/opacity/feather) show through without
-  // being diluted by the app's stacked translucent surfaces (body + frame +
-  // conversation root each read bg-base, and multiplied alphas hid the
-  // image). Content floats on the image; the "global darkening" slider keeps
-  // it readable.
+  // When a background image is enabled, strip the app's white surfaces so
+  // the full-viewport background layers show through undiluted. The body
+  // background is the sneakiest one: the base stylesheet paints it with
+  // var(--dsw-alias-bg-base) (pure white in light mode), and it covers every
+  // z-index:-1 layer. Frame / conversation / details / boot surfaces get the
+  // same treatment; the sidebar keeps its translucent fill for readability.
   if (scheme.background.enabled
     && scheme.background.layers.some((layer) => layer.visible && layer.kind === 'image' && layer.image !== '')) {
-    parts.push(`/* ==== skin-studio: transparent conversation surface ==== */
+    parts.push(`/* ==== skin-studio: transparent app surfaces ==== */
+body { background: transparent !important; }
+[class*='frame'] { background: transparent !important; }
 [class*='centerCol'] [class*='root'] { background: transparent !important; }
+[class*='detailsCol'] { background: transparent !important; }
 [data-conversation-scroll] { background: transparent !important; }
 [data-composer-card] { background: transparent !important; }
 [data-phase='hero'] [class*='card'] { background: transparent !important; }`)
@@ -391,11 +393,24 @@ export function bindApply(theme: ThemeService): ApplyHandle {
     styleEl.textContent = buildCss(scheme)
   }
 
-  const offStore = store.subscribe(reapply)
-  reapply()
+  // Coalesce reapply into one per animation frame: dragging a slider fires
+  // many store updates, and blur/feather re-synthesis is expensive. A rAF
+  // throttle keeps dragging smooth while still updating in real time.
+  let rafId: number | null = null
+  const scheduleReapply = (): void => {
+    if (rafId !== null) return
+    rafId = requestAnimationFrame(() => {
+      rafId = null
+      reapply()
+    })
+  }
+
+  const offStore = store.subscribe(scheduleReapply)
+  scheduleReapply()
 
   const dispose = (): void => {
     offStore()
+    if (rafId !== null) cancelAnimationFrame(rafId)
     disposeOverrides?.()
     disposeOverrides = null
     styleEl.remove()
