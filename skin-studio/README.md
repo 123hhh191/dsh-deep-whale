@@ -14,9 +14,9 @@
 |---|---|
 | [![取色涂色](preview/preview-paint.png)](preview/preview-paint.png) | [![设置界面](preview/preview-settings.png)](preview/preview-settings.png) |
 
-
-
-![image-20260815102348352](C:\Users\21039\AppData\Roaming\Typora\typora-user-images\image-20260815102349260.png)
+| 实际使用效果 |
+|---|
+| [![实际使用效果](preview/preview-user-demo.png)](preview/preview-user-demo.png) |
 
 
 
